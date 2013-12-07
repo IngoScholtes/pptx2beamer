@@ -35,6 +35,14 @@ namespace pptx2beamer
             }
         }
 
+        public PPTXSlide TitleSlide
+        {
+            get
+            { 
+                return (from x in Slides where x.IsTitleSlide select x).First();
+            }
+        }
+
         public IEnumerable<PPTXSlide> Slides
         {
             get

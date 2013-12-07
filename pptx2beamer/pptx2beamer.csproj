@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LaTeXExporter.cs" />
     <Compile Include="PPTXFile.cs" />
     <Compile Include="PPTXSlide.cs" />
     <Compile Include="Program.cs" />

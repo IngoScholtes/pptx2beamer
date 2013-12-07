@@ -39,12 +39,73 @@ namespace pptx2beamer
             }
         }
 
-        public string Title
+        public bool HasNotes
+        {
+            get 
+            {
+                return NotesXml != null;
+            }
+        }
+
+        public string Notes
+        {
+            get 
+            {
+                return "";
+            }
+        }
+
+        public bool IsTitleSlide
+        {
+            get 
+            {
+                string xpath = "//p:ph[@type='ctrTitle']";
+                return SlideXml.SelectSingleNode(xpath, ns) != null;
+            }
+        }
+
+        public string PresentationTitle
+        {
+            get 
+            {
+                string xpath = "//p:ph[@type='ctrTitle']/../../../p:txBody";
+                return SlideXml.SelectSingleNode(xpath, ns).InnerText;
+            }
+        }
+
+        public string SlideTitle
         {
             get
             {
                 string xpath = "//p:ph[@type='title']/../../../p:txBody";                
                 return SlideXml.SelectSingleNode(xpath, ns).InnerText;
+            }
+        }
+
+        public bool HasText
+        {
+            get
+            {
+                string xpath = "//p:cNvPr[starts-with(@name, 'Inhaltsplatzhalter')]";
+                return SlideXml.SelectSingleNode(xpath, ns) != null;
+            }
+        }
+
+        public string SlideText
+        {
+            get
+            {
+                string xpath = "//p:cNvPr[starts-with(@name, 'Inhaltsplatzhalter')]/../../p:txBody";
+                return SlideXml.SelectSingleNode(xpath, ns).InnerText;
+            }
+        }
+
+        public bool HasImages
+        {
+            get
+            {
+                string xpath = "//p:pic";
+                return SlideXml.SelectSingleNode(xpath, ns) != null;
             }
         }
     }

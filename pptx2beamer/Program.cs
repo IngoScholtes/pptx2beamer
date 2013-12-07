@@ -21,15 +21,9 @@ namespace pptx2beamer
             PPTXFile pptx = new PPTXFile(args[0]);
 
             pptx.ExtractMedia("latex\\img");
-
-            foreach (PPTXSlide slide in pptx.Slides)
-            {
-                if(slide.HasTitle)
-                    Console.WriteLine(slide.Title);
-                var texts = slide.SlideXml.GetElementsByTagName("p:sp");
-                var images = slide.SlideXml.GetElementsByTagName("p:pic");
-            }
-
+            
+            LaTeXExporter.ToLatex(pptx, "latex\\"+args[0].Replace(".pptx", ".tex"));
+            Console.WriteLine("LaTeX written successfully.");
         }
 
     }
