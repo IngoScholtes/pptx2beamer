@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Xsl;
 using System.Xml.XPath;
 
 namespace pptx2beamer
@@ -15,6 +16,8 @@ namespace pptx2beamer
         public XmlDocument NotesXml;
         public XmlDocument SlideRelsXml;
         public XmlDocument NoteRelsXml;
+
+        private XslCompiledTransform transform;
 
         XmlNamespaceManager ns;
 
@@ -28,6 +31,23 @@ namespace pptx2beamer
 
             ns = new XmlNamespaceManager(SlideXml.NameTable);
             ns.AddNamespace("p", "http://schemas.openxmlformats.org/presentationml/2006/main");
+
+            transform = new System.Xml.Xsl.XslCompiledTransform();
+            transform.Load("SlideTransformation.xslt");
+        }
+
+        public string LaTeX
+        {
+            get 
+            {
+                StringBuilder sb = new StringBuilder();
+                XmlWriterSettings xmls = new XmlWriterSettings();
+                xmls.ConformanceLevel = ConformanceLevel.Fragment;
+                XPathDocument doc = new XPathDocument(new XmlNodeReader(SlideXml));
+                XmlWriter xmlw = XmlWriter.Create(sb, xmls);
+                transform.Transform(doc, xmlw);
+                return sb.ToString();
+            }
         }
 
         public bool HasTitle
@@ -54,6 +74,8 @@ namespace pptx2beamer
                 return "";
             }
         }
+
+
 
         public bool IsTitleSlide
         {

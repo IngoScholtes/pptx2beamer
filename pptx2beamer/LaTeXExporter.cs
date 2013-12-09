@@ -41,25 +41,13 @@ namespace pptx2beamer
             StringBuilder tex = new StringBuilder();
             tex.AppendLine(preamble);
 
-            string title = "";
             string shortTitle = "";
-            string author = "";
-            string institute = "";
             string url = "";
             string collaborators = "";
             string eventname = "";
             string place = "";
 
-            if (pptx.TitleSlide != null)
-            {
-                title = pptx.TitleSlide.PresentationTitle;
-            }
-
-            tex.AppendLine("\\title{" + title + "}");
             tex.AppendLine("\\newcommand{\\shorttitle}{" + shortTitle + "}");
-            tex.AppendLine("\\author{" + author + "}");
-            tex.AppendLine("\\date{\\today}");
-            tex.AppendLine("\\institute{" + institute + "}");
             tex.AppendLine("\\newcommand{\\homepage}{" + url + "}");
             tex.AppendLine("\\newcommand{\\collaborators}{" + collaborators + "}");
             tex.AppendLine("\\newcommand{\\event}{" + eventname + "}");
@@ -70,25 +58,9 @@ namespace pptx2beamer
             tex.AppendLine("% actual content");
             tex.AppendLine("\\begin{document}\n");
 
-            tex.AppendLine(@"\frame{
-\maketitle
-}
-\note{}");
-
-
             foreach (PPTXSlide slide in pptx.Slides)
             {
-                tex.AppendLine("\n\\frame{");
-                if(slide.HasTitle)
-                    tex.AppendLine("\t\\frametitle{" + slide.SlideTitle + "}");
-
-                if (slide.HasText)
-                    tex.AppendLine(slide.SlideText);
-
-                if (slide.HasImages)
-                    tex.AppendLine("% Image goes here");
-
-                tex.AppendLine("}\n");
+                tex.AppendLine(slide.LaTeX);
 
                 if (slide.HasNotes)
                 {
