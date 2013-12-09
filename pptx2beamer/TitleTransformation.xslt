@@ -34,19 +34,19 @@
 
 % title and header
 \title{<xsl:value-of select="//p:ph[@type='ctrTitle']/../../../p:txBody" />}
-\author{Ingo Scholtes}
-\newcommand{\shorttitle}{}
-\newcommand{\homepage}{http://www.sg.ethz.ch}
-\newcommand{\collaborators}{}
-\newcommand{\event}{Complex Networks Lecture}
-\newcommand{\place}{ETH Zurich}
+      \author{Ingo Scholtes}
+      \newcommand{\shorttitle}{}
+      \newcommand{\homepage}{http://www.sg.ethz.ch}
+      \newcommand{\collaborators}{<xsl:value-of select="//p:ph[@type='subTitle']/../../../p:txBody/a:p" />}
+      \newcommand{\event}{Complex Networks Lecture}
+      \newcommand{\place}{ETH Zurich}
 
-% actual content starts here
-% \end{document} will be added automatically after last slide
+      % actual content starts here
+      % \end{document} will be added automatically after last slide
 
-\begin{document}
-  \frame{
-    \maketitle
-  }
+      \begin{document}
+      \frame{
+      \maketitle
+      }
     </xsl:template>
 </xsl:stylesheet>

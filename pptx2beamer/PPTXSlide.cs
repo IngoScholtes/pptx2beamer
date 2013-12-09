@@ -81,15 +81,6 @@ namespace pptx2beamer
                 string xpath = "//p:ph[@type='ctrTitle']";
                 return SlideXml.SelectSingleNode(xpath, ns) != null;
             }
-        }
-
-        public string PresentationTitle
-        {
-            get 
-            {
-                string xpath = "//p:ph[@type='ctrTitle']/../../../p:txBody";
-                return SlideXml.SelectSingleNode(xpath, ns).InnerText;
-            }
-        }      
+        }       
     }
 }
