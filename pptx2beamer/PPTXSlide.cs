@@ -17,7 +17,9 @@ namespace pptx2beamer
         public XmlDocument SlideRelsXml;
         public XmlDocument NoteRelsXml;
 
-        private XslCompiledTransform transform;
+        private XslCompiledTransform slideTransform;
+        private XslCompiledTransform titleTransform;
+        private XslCompiledTransform notesTransform;
 
         XmlNamespaceManager ns;
 
@@ -32,8 +34,14 @@ namespace pptx2beamer
             ns = new XmlNamespaceManager(SlideXml.NameTable);
             ns.AddNamespace("p", "http://schemas.openxmlformats.org/presentationml/2006/main");
 
-            transform = new System.Xml.Xsl.XslCompiledTransform();
-            transform.Load("SlideTransformation.xslt");
+            slideTransform = new System.Xml.Xsl.XslCompiledTransform();
+            slideTransform.Load("SlideTransformation.xslt");
+
+            titleTransform = new System.Xml.Xsl.XslCompiledTransform();
+            titleTransform.Load("TitleTransformation.xslt");
+
+            notesTransform = new System.Xml.Xsl.XslCompiledTransform();
+            notesTransform.Load("NotesTransformation.xslt");
         }
 
         public string LaTeX
@@ -45,19 +53,18 @@ namespace pptx2beamer
                 xmls.ConformanceLevel = ConformanceLevel.Fragment;
                 XPathDocument doc = new XPathDocument(new XmlNodeReader(SlideXml));
                 XmlWriter xmlw = XmlWriter.Create(sb, xmls);
-                transform.Transform(doc, xmlw);
+
+                if (IsTitleSlide)
+                    titleTransform.Transform(doc, xmlw);
+                else
+                    slideTransform.Transform(doc, xmlw);
+
+                if (HasNotes)
+                    notesTransform.Transform(new XPathDocument(new XmlNodeReader(NotesXml)), xmlw);
+
                 return sb.ToString();
             }
-        }
-
-        public bool HasTitle
-        {
-            get
-            {
-                string xpath = "//p:ph[@type='title']";
-                return SlideXml.SelectSingleNode(xpath, ns) != null;
-            }
-        }
+        }      
 
         public bool HasNotes
         {
@@ -65,17 +72,7 @@ namespace pptx2beamer
             {
                 return NotesXml != null;
             }
-        }
-
-        public string Notes
-        {
-            get 
-            {
-                return "";
-            }
-        }
-
-
+        }      
 
         public bool IsTitleSlide
         {
@@ -93,42 +90,6 @@ namespace pptx2beamer
                 string xpath = "//p:ph[@type='ctrTitle']/../../../p:txBody";
                 return SlideXml.SelectSingleNode(xpath, ns).InnerText;
             }
-        }
-
-        public string SlideTitle
-        {
-            get
-            {
-                string xpath = "//p:ph[@type='title']/../../../p:txBody";                
-                return SlideXml.SelectSingleNode(xpath, ns).InnerText;
-            }
-        }
-
-        public bool HasText
-        {
-            get
-            {
-                string xpath = "//p:cNvPr[starts-with(@name, 'Inhaltsplatzhalter')]";
-                return SlideXml.SelectSingleNode(xpath, ns) != null;
-            }
-        }
-
-        public string SlideText
-        {
-            get
-            {
-                string xpath = "//p:cNvPr[starts-with(@name, 'Inhaltsplatzhalter')]/../../p:txBody";
-                return SlideXml.SelectSingleNode(xpath, ns).InnerText;
-            }
-        }
-
-        public bool HasImages
-        {
-            get
-            {
-                string xpath = "//p:pic";
-                return SlideXml.SelectSingleNode(xpath, ns) != null;
-            }
-        }
+        }      
     }
 }
