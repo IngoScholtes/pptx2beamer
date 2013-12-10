@@ -33,6 +33,9 @@ namespace pptx2beamer
 
             ns = new XmlNamespaceManager(SlideXml.NameTable);
             ns.AddNamespace("p", "http://schemas.openxmlformats.org/presentationml/2006/main");
+            ns.AddNamespace("a", "http://schemas.openxmlformats.org/drawingml/2006/main");
+            ns.AddNamespace("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+            ns.AddNamespace("x", "urn:pptx2beamer-addition");
 
             slideTransform = new System.Xml.Xsl.XslCompiledTransform();
             slideTransform.Load("SlideTransformation.xslt");
@@ -42,6 +45,7 @@ namespace pptx2beamer
 
             notesTransform = new System.Xml.Xsl.XslCompiledTransform();
             notesTransform.Load("NotesTransformation.xslt");
+
         }
 
         public string LaTeX
@@ -53,6 +57,31 @@ namespace pptx2beamer
                 xmls.ConformanceLevel = ConformanceLevel.Fragment;
                 XPathDocument doc = new XPathDocument(new XmlNodeReader(SlideXml));
                 XmlWriter xmlw = XmlWriter.Create(sb, xmls);
+
+                if (SlideRelsXml != null)
+                {
+                    XmlNamespaceManager n = new XmlNamespaceManager(SlideRelsXml.NameTable);
+                    n.AddNamespace("r", "http://schemas.openxmlformats.org/package/2006/relationships");
+                    Dictionary<string, string> media = new Dictionary<string, string>();
+                    foreach (XmlNode node in SlideRelsXml.SelectNodes("//r:Relationship", n))
+                    {
+                        media[node.Attributes["Id"].Value] = node.Attributes["Target"].Value.Replace("../media/", "");
+                    }
+
+                    foreach (string id in media.Keys)
+                    {
+                        string xp = "//a:blip[@r:embed='" + id + "']";
+                        foreach (XmlNode node in SlideXml.SelectNodes(xp, ns))
+                        {
+                            XmlAttribute attr = SlideXml.CreateAttribute("src");
+                            attr.Prefix = "x";
+                            attr.Value = media[id];
+                            node.Attributes.Append(attr);
+                        }
+                    }
+                }
+
+                doc = new XPathDocument(new XmlNodeReader(SlideXml));
 
                 if (IsTitleSlide)
                     titleTransform.Transform(doc, xmlw);

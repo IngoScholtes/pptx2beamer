@@ -3,6 +3,8 @@
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"
                 xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
                 xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+                xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+                xmlns:x="urn:pptx2beamer-addition"
 >
     <xsl:output method="text" indent="yes"/>
     <xsl:template match="@* | node()">
@@ -25,9 +27,12 @@
   </xsl:for-each>  
   \end{itemize}
   </xsl:if>
-  <xsl:if test="//p:pic">
+      <xsl:for-each select="//p:pic">
   % Image contents
-  </xsl:if>
+  \begin{figure}
+  \includegraphics{img/<xsl:value-of select="p:blipFill/a:blip/@src" />}
+  \end{figure}
+      </xsl:for-each>    
 }
     </xsl:template>
 </xsl:stylesheet>
