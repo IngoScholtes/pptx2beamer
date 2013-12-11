@@ -28,10 +28,16 @@
   \end{itemize}
   </xsl:if>
       <xsl:for-each select="//p:pic">
+        <xsl:variable name="w" select="p:spPr/a:xfrm/a:ext/@cx  div 828000"/>
+        <xsl:variable name="h" select="p:spPr/a:xfrm/a:ext/@cy  div 828000"/>
+        <xsl:variable name="x" select="p:spPr/a:xfrm/a:off/@x  div 828000"/>
+        <xsl:variable name="y" select="p:spPr/a:xfrm/a:off/@y  div 828000"/>
   % Image contents
-  \begin{figure}
-  \includegraphics{img/<xsl:value-of select="p:blipFill/a:blip/@src" />}
+  \begin{textblock*}{<xsl:value-of select="$w"/>cm}(<xsl:value-of select="$x"/>cm,<xsl:value-of select="$y"/>cm)
+  \begin{figure}  
+  \includegraphics[width=<xsl:value-of select="$w"/>cm,height=<xsl:value-of select="$h"/>cm]{img/<xsl:value-of select="p:blipFill/a:blip/@src" />}
   \end{figure}
+  \end{textblock*}
       </xsl:for-each>    
 }
     </xsl:template>
