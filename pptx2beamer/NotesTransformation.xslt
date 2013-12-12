@@ -8,8 +8,8 @@
 
     <xsl:template match="@* | node()">
       <xsl:if test="//p:cNvPr[starts-with(@name, 'Notizenplatzhalter')]">
-% slide notes
-\note{
+  % slide notes
+  \note{
         <xsl:for-each select="//p:cNvPr[starts-with(@name, 'Notizenplatzhalter')]/../../p:txBody/a:p/a:r">
           <xsl:variable name="t" select="a:t" />
           <xsl:value-of select="a:t" />
@@ -17,7 +17,7 @@
             <xsl:text> </xsl:text>
           </xsl:if>
         </xsl:for-each>
-}
+  }
       </xsl:if>
     </xsl:template>
 </xsl:stylesheet>
