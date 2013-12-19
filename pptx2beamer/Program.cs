@@ -12,7 +12,7 @@ namespace pptx2beamer
     {
         static void Main(string[] args)
         {
-            if (args.Length<1 || !System.IO.File.Exists(args[0]))
+            if (args.Length<1 || !System.IO.File.Exists(args[0]) || !args[0].EndsWith(".pptx"))
             {
                 Console.WriteLine("Usage: pptx2beamer [pptx_file]");
                 return;
@@ -21,7 +21,7 @@ namespace pptx2beamer
             // Extract information from pptx file
             Console.Write("Opening pptx file...");
             PPTXFile pptx = new PPTXFile(args[0]);
-            pptx.ExtractMedia("latex\\img");
+            pptx.ExtractMedia(pptx.FileName.Replace(".pptx", "")+"\\img");
             Console.WriteLine("done.");
 
             // Generate LaTeX code via XSLT transformations
@@ -34,8 +34,8 @@ namespace pptx2beamer
 
             // Write LaTeX to source directory
             Console.Write("Writing source file...");
-            System.IO.Directory.CreateDirectory("latex");
-            System.IO.File.WriteAllText("latex\\"+args[0].Replace(".pptx", ".tex"), tex.ToString(), UTF8Encoding.ASCII);
+            System.IO.Directory.CreateDirectory(pptx.FileName);
+            System.IO.File.WriteAllText(pptx.FileName.Replace(".pptx", "") + "\\" + pptx.FileName.Replace(".pptx", ".tex"), tex.ToString(), UTF8Encoding.ASCII);
             Console.WriteLine("done.");
         }
 

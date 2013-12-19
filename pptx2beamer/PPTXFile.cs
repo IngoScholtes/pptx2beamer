@@ -26,6 +26,14 @@ namespace pptx2beamer
             Parse();
         }
 
+        public string FileName
+        {
+            get
+            {
+                return path.Split('\\').Last();
+            }
+        }
+
 
         public int SlideCount
         {
