@@ -8,7 +8,7 @@
 >
 
   <xsl:output method="text" indent="no"/>
-  <!-- A replace all method -->
+  <!-- A template which replace any occurrence of a substring by another substring -->
   <xsl:template name="string-replace-all">
     <xsl:param name="text" />
     <xsl:param name="replace" />
@@ -28,7 +28,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  <!-- Escape all special LaTeX characters-->
+  <!-- A template which escapes all special LaTeX characters-->
   <xsl:template name="escape-latex">
     <xsl:param name="text" />
     <xsl:variable name="escape1" >
@@ -47,15 +47,16 @@
     </xsl:variable>
     <xsl:value-of select="$escape2"/>
   </xsl:template>
+  <!-- A template which transforms elements on a pptx slide to LaTeX beamer code  -->
   <xsl:template match="@* | node()">
     <!-- Generate frame and extract frametitle -->    
   \frame{<xsl:if test="//p:ph[@type='title']" >
-      \frametitle{<xsl:for-each select="//p:ph[@type='title']/../../../p:txBody/a:p/a:r">
+      \frametitle{<xsl:for-each select="//p:ph[@type='title']/../../../p:txBody/a:p/a:r">        
         <xsl:variable name="t" select="a:t" />      
-          <xsl:value-of select="$t" />
+          <xsl:value-of select="$t" /> 
         <xsl:if test="substring($t, string-length($t),1)!=' '">
             <xsl:text> </xsl:text>
-        </xsl:if>
+        </xsl:if>        
       </xsl:for-each>}
   </xsl:if>    
   <!-- Transform text placeholder elements -->
@@ -72,13 +73,16 @@
         \begin{itemize}
       <xsl:for-each select="p:txBody/a:p">        
         \item  <xsl:for-each select="a:r">
+          <xsl:if test ="a:rPr/a:solidFill"> { \color[HTML]{<xsl:value-of select="a:rPr/a:solidFill/a:srgbClr/@val"/>} </xsl:if>
             <xsl:variable name="newtext" >
               <xsl:call-template name="escape-latex">
-                <xsl:with-param name="text" select="a:t"/>
+                <xsl:with-param name="text" select="a:t"/> 
               </xsl:call-template>
             </xsl:variable>
           <xsl:value-of select="$newtext"/>
-          </xsl:for-each> \\      
+          <xsl:value-of select="' '"/>
+          <xsl:if test ="a:rPr/a:solidFill"> } </xsl:if>
+          </xsl:for-each> \\
   </xsl:for-each>
         \end{itemize}
   <!-- End of multi-column layout if no following content placeholder with sz=half-->        
@@ -96,6 +100,26 @@
         \begin{figure}  
           \includegraphics[width=<xsl:value-of select="$w"/>cm,height=<xsl:value-of select="$h"/>cm]{img/<xsl:value-of select="p:blipFill/a:blip/@src" />}
         \end{figure}
+      \end{textblock*}
+    </xsl:for-each>
+    <!-- Transform randomly positioned text boxes -->
+    <xsl:for-each select="//p:sp/p:nvSpPr/p:cNvSpPr[@txBox='1']">
+      <xsl:variable name="w" select="../../p:spPr/a:xfrm/a:ext/@cx div 828000"/>
+      <xsl:variable name="h" select="../../p:spPr/a:xfrm/a:ext/@cy div 828000"/>
+      <xsl:variable name="x" select="../../p:spPr/a:xfrm/a:off/@x  div 828000"/>
+      <xsl:variable name="y" select="../../p:spPr/a:xfrm/a:off/@y  div 828000"/>
+      \begin{textblock*}{<xsl:value-of select="$w"/>cm}(<xsl:value-of select="$x"/>cm,<xsl:value-of select="$y"/>cm)      
+      <xsl:for-each select="../../p:txBody/a:p">
+        <xsl:for-each select="a:r">
+          <xsl:variable name="newtext" >
+            <xsl:call-template name="escape-latex">
+              <xsl:with-param name="text" select="a:t"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:value-of select="$newtext"/>
+          <xsl:value-of select="' '"/>
+        </xsl:for-each>             
+       </xsl:for-each>
       \end{textblock*}
     </xsl:for-each>}
   </xsl:template>
