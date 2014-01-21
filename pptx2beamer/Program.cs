@@ -34,7 +34,7 @@ namespace pptx2beamer
 
             // Write LaTeX to source directory
             Console.Write("Writing source file...");
-            System.IO.Directory.CreateDirectory(pptx.FileName);
+            System.IO.Directory.CreateDirectory(pptx.FileName.Replace(".pptx", ""));
             System.IO.File.WriteAllText(pptx.FileName.Replace(".pptx", "") + "\\" + pptx.FileName.Replace(".pptx", ".tex"), tex.ToString(), UTF8Encoding.ASCII);
             Console.WriteLine("done.");
         }

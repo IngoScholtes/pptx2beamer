@@ -8,8 +8,47 @@
 >
 
   <xsl:output method="text" indent="no"/>
+  <!-- A replace all method -->
+  <xsl:template name="string-replace-all">
+    <xsl:param name="text" />
+    <xsl:param name="replace" />
+    <xsl:param name="by" />
+    <xsl:choose>
+      <xsl:when test="contains($text, $replace)">
+        <xsl:value-of select="substring-before($text,$replace)" />
+        <xsl:value-of select="$by" />
+        <xsl:call-template name="string-replace-all">
+          <xsl:with-param name="text" select="substring-after($text,$replace)" />
+          <xsl:with-param name="replace" select="$replace" />
+          <xsl:with-param name="by" select="$by" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$text" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  <!-- Escape all special LaTeX characters-->
+  <xsl:template name="escape-latex">
+    <xsl:param name="text" />
+    <xsl:variable name="escape1" >
+      <xsl:call-template name="string-replace-all">
+        <xsl:with-param name="text" select="$text" />
+        <xsl:with-param name="replace" select="'%'" />
+        <xsl:with-param name="by" select="'\%'" />
+      </xsl:call-template>      
+    </xsl:variable>
+    <xsl:variable name="escape2" >
+      <xsl:call-template name="string-replace-all">
+        <xsl:with-param name="text" select="$escape1" />
+        <xsl:with-param name="replace" select="'$'" />
+        <xsl:with-param name="by" select="'\$'" />
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="$escape2"/>
+  </xsl:template>
   <xsl:template match="@* | node()">
-  <!-- Generate frame and extract frametitle -->    
+    <!-- Generate frame and extract frametitle -->    
   \frame{<xsl:if test="//p:ph[@type='title']" >
       \frametitle{<xsl:for-each select="//p:ph[@type='title']/../../../p:txBody/a:p/a:r">
         <xsl:variable name="t" select="a:t" />      
@@ -31,9 +70,16 @@
       </xsl:if>
 <!-- Generate itemized list -->        
         \begin{itemize}
-      <xsl:for-each select="p:txBody/a:p/a:r">
-          \item <xsl:value-of select="a:t" /> \\
-      </xsl:for-each>
+      <xsl:for-each select="p:txBody/a:p">        
+        \item  <xsl:for-each select="a:r">
+            <xsl:variable name="newtext" >
+              <xsl:call-template name="escape-latex">
+                <xsl:with-param name="text" select="a:t"/>
+              </xsl:call-template>
+            </xsl:variable>
+          <xsl:value-of select="$newtext"/>
+          </xsl:for-each> \\      
+  </xsl:for-each>
         \end{itemize}
   <!-- End of multi-column layout if no following content placeholder with sz=half-->        
       <xsl:if test="p:nvSpPr/p:nvPr/p:ph[@sz='half'] and not(following-sibling::p:sp[p:nvSpPr/p:nvPr/p:ph[@sz='half'] and p:nvSpPr/p:cNvPr[starts-with(@name, 'Inhaltsplatzhalter')] ])">      
